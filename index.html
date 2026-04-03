@@ -1,0 +1,2547 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Atkinson Method</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+/* ═══════════════════════════════════════════════════════
+   THE ATKINSON METHOD — style.css
+   Dark theme (default) + Light theme toggle
+═══════════════════════════════════════════════════════ */
+
+/* ── GOOGLE FONTS already loaded in <head> ── */
+
+/* ── DARK THEME ── */
+:root,
+[data-theme="dark"] {
+  --bg:          #0e0d0b;
+  --bg2:         #141310;
+  --bg3:         #1c1a16;
+  --border:      #2a2720;
+  --border2:     #3a3530;
+  --gold:        #c9a84c;
+  --gold-dim:    #8a6f2e;
+  --gold-glow:   rgba(201,168,76,0.10);
+  --cream:       #e8e0d0;
+  --cream-dim:   #9a9080;
+  --text:        #d4cbb8;
+  --text-dim:    #6a6258;
+  --red:         #8b3a3a;
+  --red-bright:  #c25555;
+  --green:       #3a6b4a;
+  --green-bright:#5a9b6a;
+  --shadow:      rgba(0,0,0,0.4);
+  --grain-opacity: 0.45;
+}
+
+/* ── LIGHT THEME ── */
+[data-theme="light"] {
+  --bg:          #f5f2ec;
+  --bg2:         #edeae2;
+  --bg3:         #e4e0d6;
+  --border:      #d5cfc4;
+  --border2:     #c2b9ab;
+  --gold:        #8a6520;
+  --gold-dim:    #a07830;
+  --gold-glow:   rgba(138,101,32,0.08);
+  --cream:       #1a1714;
+  --cream-dim:   #4a4238;
+  --text:        #3a3228;
+  --text-dim:    #8a7e70;
+  --red:         #c25555;
+  --red-bright:  #a03030;
+  --green:       #3a7a50;
+  --green-bright:#2a5e38;
+  --shadow:      rgba(0,0,0,0.12);
+  --grain-opacity: 0.15;
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--grain-opacity);
+  transition: opacity 0.3s ease;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 100px;
+}
+
+/* ═══════════════════════════════════════════════
+   TYPOGRAPHY HELPERS
+═══════════════════════════════════════════════ */
+.serif { font-family: 'Cormorant Garamond', serif; }
+.mono  { font-family: 'DM Mono', monospace; }
+
+/* ═══════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════ */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--cream);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  transition: color 0.3s;
+}
+.brand h1 span { color: var(--gold); }
+
+.brand p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 7px;
+}
+
+.header-right {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text-dim);
+  width: 36px;
+  height: 36px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.theme-toggle:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+.streak-badge { text-align: right; }
+.streak-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.6rem;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+}
+.streak-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   NAV TABS
+═══════════════════════════════════════════════ */
+.nav-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.nav-tab {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  padding: 11px 18px;
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  transition: all 0.2s;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--cream-dim); }
+.nav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   PAGES
+═══════════════════════════════════════════════ */
+.page { display: none; animation: fade-in 0.25s ease; }
+.page.active { display: block; }
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ═══════════════════════════════════════════════
+   API SETUP BANNER
+═══════════════════════════════════════════════ */
+.api-setup {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold-dim);
+  border-radius: 2px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  display: none;
+  transition: background 0.3s;
+}
+.api-setup.visible { display: block; }
+
+.api-setup h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 6px;
+}
+.api-setup p { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 16px; line-height: 1.65; }
+
+.api-row { display: flex; gap: 10px; }
+
+.api-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  padding: 10px 14px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.2s, background 0.3s;
+}
+.api-input:focus { border-color: var(--gold-dim); }
+.api-input::placeholder { color: var(--text-dim); }
+
+/* ═══════════════════════════════════════════════
+   MILESTONE SECTION
+═══════════════════════════════════════════════ */
+.milestone-section { margin-bottom: 32px; }
+
+.milestone-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+}
+.current-milestone-name { color: var(--gold); }
+
+.progress-track {
+  height: 3px;
+  background: var(--bg3);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  border-radius: 2px;
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.milestones-row {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.milestone-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  padding: 4px 11px;
+  border-radius: 1px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  transition: all 0.3s;
+  cursor: default;
+}
+.milestone-pill.achieved { border-color: var(--gold-dim); color: var(--gold); background: var(--gold-glow); }
+.milestone-pill.next     { border-color: var(--border2); color: var(--cream-dim); }
+
+/* ═══════════════════════════════════════════════
+   STATS ROW
+═══════════════════════════════════════════════ */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 14px 10px;
+  border-radius: 2px;
+  text-align: center;
+  transition: background 0.3s, border-color 0.2s;
+}
+.stat-card.weak { border-color: var(--red); }
+.stat-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  color: var(--cream);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-card.weak .stat-val { color: var(--red-bright); }
+.stat-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+/* ═══════════════════════════════════════════════
+   DAY PLAN & QUOTE
+═══════════════════════════════════════════════ */
+.day-plan {
+  margin-bottom: 24px;
+  padding: 16px 22px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold-dim);
+  border-radius: 2px;
+  transition: background 0.3s;
+}
+.day-plan-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gold-dim);
+  margin-bottom: 5px;
+}
+.day-plan-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--cream);
+  font-weight: 400;
+}
+
+.quote-strip {
+  padding: 18px 22px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  text-align: center;
+}
+.quote-strip blockquote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--cream-dim);
+  line-height: 1.75;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.quote-strip cite {
+  display: block;
+  margin-top: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-style: normal;
+}
+
+/* ═══════════════════════════════════════════════
+   MODULE CARDS
+═══════════════════════════════════════════════ */
+.modules-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.module-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.3s;
+}
+.module-card.active    { border-color: var(--gold-dim); }
+.module-card.completed { border-color: var(--green); opacity: 0.78; }
+
+.module-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+}
+.module-header:hover .module-title { color: var(--gold); }
+
+.module-icon {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  background: var(--bg3);
+  color: var(--text-dim);
+  transition: all 0.2s;
+}
+.module-card.completed .module-icon {
+  background: rgba(58,107,74,0.2);
+  border-color: var(--green);
+  color: var(--green-bright);
+}
+.module-card.active .module-icon {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+.module-meta { flex: 1; min-width: 0; }
+.module-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 2px;
+  transition: color 0.2s;
+}
+.module-desc  { font-size: 0.72rem; color: var(--text-dim); line-height: 1.4; }
+.module-time  { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--text-dim); white-space: nowrap; }
+.module-chevron {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+  margin-left: 4px;
+}
+.module-card.active .module-chevron { transform: rotate(90deg); color: var(--gold); }
+
+/* Module body — collapsed by default */
+.module-body {
+  display: none;
+  padding: 0 20px 20px;
+  border-top: 1px solid var(--border);
+  animation: fade-in 0.2s ease;
+}
+.module-card.active .module-body { display: block; }
+
+/* ═══════════════════════════════════════════════
+   EXERCISE AREA
+═══════════════════════════════════════════════ */
+.exercise-prompt { padding: 16px 0 12px; }
+
+.prompt-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.prompt-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--cream);
+  line-height: 1.65;
+  font-style: italic;
+}
+.prompt-text .word-highlight { color: var(--gold); font-style: normal; font-weight: 600; }
+.prompt-text .word-def { color: var(--cream-dim); font-size: 0.95em; }
+.prompt-text .word-example { color: var(--text-dim); font-size: 0.88em; font-style: normal; }
+
+.essence-text { font-style: normal; font-size: 0.92rem; line-height: 1.85; }
+
+.listen-question {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--cream);
+  font-style: italic;
+  margin-bottom: 14px;
+}
+
+.slow-sentences { font-style: normal; line-height: 2.4; }
+.slow-sentence-line {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--cream);
+  font-size: 1.05rem;
+}
+.slow-instruction {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+  margin-bottom: 12px;
+  padding: 10px 0;
+}
+
+.exercise-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 300;
+  padding: 13px 15px;
+  resize: vertical;
+  min-height: 88px;
+  outline: none;
+  transition: border-color 0.2s, background 0.3s;
+  line-height: 1.65;
+}
+.exercise-input:focus { border-color: var(--gold-dim); }
+.exercise-input::placeholder { color: var(--text-dim); font-size: 0.82rem; }
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn-row {
+  display: flex;
+  gap: 9px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--gold-dim);
+  color: #0e0d0b;
+  border: none;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  border-radius: 1px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-primary:hover    { background: var(--gold); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border2);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-ghost:hover { border-color: var(--text-dim); color: var(--text); }
+
+.btn-danger {
+  background: rgba(139,58,58,0.15);
+  color: var(--red-bright);
+  border: 1px solid var(--red);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 14px;
+}
+.btn-danger:hover { background: rgba(139,58,58,0.3); }
+
+.mark-done-btn {
+  margin-top: 12px;
+  width: 100%;
+  background: rgba(58,107,74,0.10);
+  color: var(--green-bright);
+  border: 1px solid var(--green);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px;
+  border-radius: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mark-done-btn:hover { background: rgba(58,107,74,0.25); }
+
+/* ═══════════════════════════════════════════════
+   AI RESPONSE
+═══════════════════════════════════════════════ */
+.loading {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0 6px;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+}
+.loading.visible { display: flex; }
+
+.loading-dots { display: flex; gap: 4px; }
+.loading-dots span {
+  width: 5px; height: 5px;
+  background: var(--gold-dim);
+  border-radius: 50%;
+  animation: dot-pulse 1.2s infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-pulse {
+  0%,80%,100% { opacity:0.2; transform:scale(0.8); }
+  40% { opacity:1; transform:scale(1); }
+}
+
+.ai-response {
+  display: none;
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  animation: fade-in 0.3s ease;
+  transition: background 0.3s;
+}
+.ai-response.visible { display: block; }
+
+.ai-response-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--gold-dim);
+  margin-bottom: 10px;
+}
+.ai-response-text {
+  font-size: 0.85rem;
+  line-height: 1.82;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.score-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 14px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 1px;
+}
+.score-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+.score-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  color: var(--gold);
+}
+
+/* ═══════════════════════════════════════════════
+   REVIEW BANNER (spaced rep)
+═══════════════════════════════════════════════ */
+.review-banner {
+  background: var(--gold-glow);
+  border: 1px solid var(--gold-dim);
+  border-radius: 2px;
+  padding: 12px 18px;
+  margin-bottom: 22px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.review-banner.visible { display: flex; }
+.review-banner-text { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--gold); }
+.review-banner-count {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  color: var(--gold);
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════════ */
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.section-desc {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 22px;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════
+   WORD BANK
+═══════════════════════════════════════════════ */
+.wordbank-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.filter-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 6px 14px;
+  border: 1px solid var(--border2);
+  border-radius: 1px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover  { color: var(--text); border-color: var(--text-dim); }
+.filter-btn.active { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-glow); }
+
+.wordbank-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+}
+.word-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 16px 18px;
+  transition: border-color 0.2s, background 0.3s;
+}
+.word-card:hover  { border-color: var(--border2); }
+.word-card.due    { border-color: var(--gold-dim); background: var(--gold-glow); }
+
+.word-card-word { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--gold); margin-bottom: 4px; }
+.word-card-def  { font-size: 0.74rem; color: var(--text-dim); margin-bottom: 10px; line-height: 1.45; }
+.word-card-meta { display: flex; justify-content: space-between; align-items: center; }
+.word-card-score{ font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--cream-dim); }
+.word-card-due  { font-family: 'DM Mono', monospace; font-size: 0.58rem; color: var(--gold-dim); }
+.word-card-due.overdue { color: var(--red-bright); }
+
+/* ═══════════════════════════════════════════════
+   SESSION HISTORY
+═══════════════════════════════════════════════ */
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+
+.history-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.3s;
+}
+.history-item:hover { border-color: var(--border2); }
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.history-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.64rem;
+  color: var(--gold-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.history-score {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--cream);
+}
+
+.history-modules { display: flex; gap: 6px; flex-wrap: wrap; }
+.history-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.56rem;
+  padding: 3px 8px;
+  border: 1px solid var(--border2);
+  border-radius: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.history-tag.done { border-color: var(--green); color: var(--green-bright); }
+
+.history-detail { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.history-detail.open { display: block; animation: fade-in 0.2s ease; }
+
+.history-entry { margin-bottom: 14px; }
+.history-entry-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 5px;
+}
+.history-entry-text {
+  font-size: 0.8rem;
+  color: var(--cream-dim);
+  line-height: 1.65;
+  background: var(--bg3);
+  padding: 10px 12px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════════════
+   WEEKLY REVIEW
+═══════════════════════════════════════════════ */
+.weekly-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 22px 26px;
+  margin-bottom: 16px;
+  transition: background 0.3s;
+}
+.weekly-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  color: var(--cream);
+  font-weight: 400;
+  margin-bottom: 5px;
+}
+.weekly-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.weekly-card-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.weekly-metrics {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 16px;
+}
+.weekly-metric-item .wm-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+.weekly-metric-item .wm-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  color: var(--cream);
+}
+.weekly-metric-item .wm-val.weak { color: var(--red-bright); }
+
+.review-ai {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold-dim);
+  padding: 14px 16px;
+  border-radius: 2px;
+  font-size: 0.83rem;
+  line-height: 1.82;
+  color: var(--text);
+  white-space: pre-wrap;
+  transition: background 0.3s;
+}
+
+/* ═══════════════════════════════════════════════
+   JOURNAL
+═══════════════════════════════════════════════ */
+.journal-entry-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-style: italic;
+  padding: 16px 18px;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+  transition: border-color 0.2s, background 0.3s;
+  line-height: 1.75;
+  margin-bottom: 12px;
+}
+.journal-entry-input:focus { border-color: var(--gold-dim); }
+.journal-entry-input::placeholder { color: var(--text-dim); }
+
+.journal-list { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+
+.journal-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 16px 18px;
+  transition: background 0.3s;
+}
+.journal-item-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.journal-item-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  color: var(--cream-dim);
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════
+   SETTINGS PAGE
+═══════════════════════════════════════════════ */
+.settings-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 22px 26px;
+  margin-bottom: 14px;
+  transition: background 0.3s;
+}
+.settings-card h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 6px;
+}
+.settings-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.65; }
+.danger-card { border-color: var(--red); }
+
+.api-status {
+  margin-top: 10px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--green-bright);
+  min-height: 20px;
+}
+
+.settings-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+.settings-stats > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-stats > div:last-child { border-bottom: none; }
+
+.ss-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.ss-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  color: var(--cream);
+}
+
+.theme-btn.active-theme {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+  background: var(--gold-glow);
+}
+
+/* ═══════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════ */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--bg2);
+  border: 1px solid var(--gold-dim);
+  border-radius: 2px;
+  padding: 14px 20px;
+  display: none;
+  z-index: 1000;
+  max-width: 300px;
+  box-shadow: 0 8px 32px var(--shadow);
+  transition: background 0.3s;
+}
+.toast.visible { display: block; animation: toast-in 0.3s ease; }
+@keyframes toast-in { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.toast-title { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold); margin-bottom: 3px; }
+.toast-body  { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--text-dim); line-height: 1.5; }
+
+/* ═══════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.visible { display: flex; }
+
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  padding: 28px 32px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 16px 64px var(--shadow);
+  animation: fade-in 0.2s ease;
+  transition: background 0.3s;
+}
+.modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--cream); margin-bottom: 10px; }
+.modal-body  { font-size: 0.82rem; color: var(--text-dim); line-height: 1.65; margin-bottom: 20px; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ═══════════════════════════════════════════════
+   MISC
+═══════════════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.8;
+  grid-column: 1 / -1;
+}
+
+.footer-note {
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  padding-top: 8px;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 680px) {
+  .app { padding: 24px 16px 80px; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+  .header { flex-direction: column; gap: 14px; }
+  .header-right { width: 100%; justify-content: space-between; }
+  .streak-badge { text-align: left; }
+  .wordbank-grid { grid-template-columns: 1fr; }
+  .brand h1 { font-size: 1.6rem; }
+  .module-time { display: none; }
+}
+
+@media (max-width: 420px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .nav-tab { padding: 10px 12px; font-size: 0.56rem; }
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="brand">
+        <h1>The <span>Atkinson</span> Method</h1>
+        <p>Danish's Personal English Coach &middot; v2</p>
+      </div>
+      <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+          <span id="themeIcon">☀</span>
+        </button>
+        <div class="streak-badge">
+          <div class="streak-num" id="streakNum">0</div>
+          <div class="streak-label">Day Streak</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── NAV ── -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-page="practice">Practice</button>
+      <button class="nav-tab" data-page="wordbank">Word Bank</button>
+      <button class="nav-tab" data-page="history">Session Log</button>
+      <button class="nav-tab" data-page="weekly">Weekly Review</button>
+      <button class="nav-tab" data-page="journal">Journal</button>
+      <button class="nav-tab" data-page="settings">Settings</button>
+    </nav>
+
+    <!-- ── API SETUP BANNER ── -->
+    <div class="api-setup" id="apiSetup">
+      <h2>Connect your Groq API Key</h2>
+      <p>Your key is stored only in this browser — never shared. Get a free key at <strong>console.groq.com</strong> then paste it below.</p>
+      <div class="api-row">
+        <input class="api-input" id="apiKeyInput" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+        <button class="btn-primary" id="saveApiBtn">Save Key</button>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!--  PAGE: PRACTICE                      -->
+    <!-- ════════════════════════════════════ -->
+    <div class="page active" id="page-practice">
+
+      <!-- Spaced Rep Banner -->
+      <div class="review-banner" id="reviewBanner">
+        <span class="review-banner-text">📚 Words due for spaced repetition review</span>
+        <span class="review-banner-count" id="reviewCount">0</span>
+      </div>
+
+      <!-- Milestones -->
+      <section class="milestone-section">
+        <div class="milestone-header">
+          <span>Your Journey</span>
+          <span class="current-milestone-name" id="currentMilestoneName">Beginner</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="milestone-header" style="margin-top:5px;margin-bottom:0;">
+          <span id="sessionsLabel">0 sessions complete</span>
+          <span id="nextMilestoneLabel">Next: 7 sessions</span>
+        </div>
+        <div class="milestones-row" id="milestonesRow"></div>
+      </section>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-val" id="statSessions">0</div>
+          <div class="stat-lbl">Sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statWords">0</div>
+          <div class="stat-lbl">Words</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statScore">—</div>
+          <div class="stat-lbl">Avg Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statModules">0</div>
+          <div class="stat-lbl">Today Done</div>
+        </div>
+        <div class="stat-card" id="weakStat">
+          <div class="stat-val" id="statWeak">—</div>
+          <div class="stat-lbl">Weakest Area</div>
+        </div>
+      </div>
+
+      <!-- Daily Focus -->
+      <div class="day-plan">
+        <div class="day-plan-label">Today's Focus</div>
+        <div class="day-plan-title" id="dailyTheme">Loading today's session…</div>
+      </div>
+
+      <!-- Quote -->
+      <div class="quote-strip">
+        <blockquote id="dailyQuote">"The right word, delivered at the right pace, carries more weight than a thousand rushed ones."</blockquote>
+        <cite>— The Atkinson Principle</cite>
+      </div>
+
+      <!-- ── MODULES ── -->
+      <div class="modules-grid">
+
+        <!-- M1: Word in Context -->
+        <div class="module-card" id="mod-word">
+          <div class="module-header" onclick="toggleModule('word')">
+            <div class="module-icon">◈</div>
+            <div class="module-meta">
+              <div class="module-title">Word in Context</div>
+              <div class="module-desc">One precise word. Learn its exact weight. Use it correctly.</div>
+            </div>
+            <div class="module-time">3 min</div>
+            <div class="module-chevron" id="chevron-word">›</div>
+          </div>
+          <div class="module-body" id="body-word">
+            <div class="exercise-prompt">
+              <div class="prompt-label">Today's Word</div>
+              <div class="prompt-text" id="wordPrompt">Loading…</div>
+            </div>
+            <textarea class="exercise-input" id="wordInput" placeholder="Write a sentence using this word in a professional context — a meeting, a client conversation, or an email." rows="3"></textarea>
+            <div class="btn-row">
+              <button class="btn-primary" id="submitWord">Submit for Review</button>
+              <button class="btn-ghost" id="newWordBtn">New Word</button>
+            </div>
+            <div class="loading" id="loading-word">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+              <span>Analysing your response…</span>
+            </div>
+            <div class="ai-response" id="response-word">
+              <div class="ai-response-label">Coach's Feedback</div>
+              <div class="ai-response-text" id="responseText-word"></div>
+              <div class="score-display" id="score-word" style="display:none">
+                <span class="score-label">Score</span>
+                <span class="score-value" id="scoreVal-word">—</span>
+              </div>
+              <button class="mark-done-btn" id="doneWord">✓ Mark Complete — Save Word to Bank</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- M2: Say It Calmer -->
+        <div class="module-card" id="mod-calm">
+          <div class="module-header" onclick="toggleModule('calm')">
+            <div class="module-icon">◇</div>
+            <div class="module-meta">
+              <div class="module-title">Say It Calmer</div>
+              <div class="module-desc">Write what you'd blurt. Get the Atkinson version instead.</div>
+            </div>
+            <div class="module-time">4 min</div>
+            <div class="module-chevron" id="chevron-calm">›</div>
+          </div>
+          <div class="module-body" id="body-calm">
+            <div class="exercise-prompt">
+              <div class="prompt-label">The Scenario</div>
+              <div class="prompt-text" id="calmPrompt">Loading…</div>
+            </div>
+            <textarea class="exercise-input" id="calmInput" placeholder="Write exactly how you would naturally say this — don't polish it. Be honest." rows="4"></textarea>
+            <div class="btn-row">
+              <button class="btn-primary" id="submitCalm">Show Me the Atkinson Version</button>
+              <button class="btn-ghost" id="newScenarioBtn">Different Scenario</button>
+            </div>
+            <div class="loading" id="loading-calm">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+              <span>Crafting the calmer version…</span>
+            </div>
+            <div class="ai-response" id="response-calm">
+              <div class="ai-response-label">The Atkinson Rewrite</div>
+              <div class="ai-response-text" id="responseText-calm"></div>
+              <button class="mark-done-btn" id="doneCalm">✓ Mark Complete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- M3: Essence Test -->
+        <div class="module-card" id="mod-essence">
+          <div class="module-header" onclick="toggleModule('essence')">
+            <div class="module-icon">△</div>
+            <div class="module-meta">
+              <div class="module-title">The Essence Test</div>
+              <div class="module-desc">Read a paragraph. Deliver its core in two sentences.</div>
+            </div>
+            <div class="module-time">4 min</div>
+            <div class="module-chevron" id="chevron-essence">›</div>
+          </div>
+          <div class="module-body" id="body-essence">
+            <div class="exercise-prompt">
+              <div class="prompt-label">Read This — Then Summarise</div>
+              <div class="prompt-text essence-text" id="essencePrompt">Loading…</div>
+            </div>
+            <textarea class="exercise-input" id="essenceInput" placeholder="In exactly two sentences, tell me the core point of what you just read. No more." rows="3"></textarea>
+            <div class="btn-row">
+              <button class="btn-primary" id="submitEssence">Did the Essence Survive?</button>
+            </div>
+            <div class="loading" id="loading-essence">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+              <span>Checking if the message survived…</span>
+            </div>
+            <div class="ai-response" id="response-essence">
+              <div class="ai-response-label">Essence Verdict</div>
+              <div class="ai-response-text" id="responseText-essence"></div>
+              <div class="score-display" id="score-essence" style="display:none">
+                <span class="score-label">Retention</span>
+                <span class="score-value" id="scoreVal-essence">—</span>
+              </div>
+              <button class="mark-done-btn" id="doneEssence">✓ Mark Complete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- M4: Active Listening -->
+        <div class="module-card" id="mod-listen">
+          <div class="module-header" onclick="toggleModule('listen')">
+            <div class="module-icon">○</div>
+            <div class="module-meta">
+              <div class="module-title">Active Listening Drill</div>
+              <div class="module-desc">Someone speaks. You stay present. Then answer precisely.</div>
+            </div>
+            <div class="module-time">4 min</div>
+            <div class="module-chevron" id="chevron-listen">›</div>
+          </div>
+          <div class="module-body" id="body-listen">
+            <div class="exercise-prompt">
+              <div class="prompt-label">What Was Said</div>
+              <div class="prompt-text essence-text" id="listenPrompt">Loading…</div>
+            </div>
+            <div class="prompt-label" style="padding:14px 0 6px;">Question</div>
+            <div class="listen-question" id="listenQuestion">Loading…</div>
+            <textarea class="exercise-input" id="listenInput" placeholder="Answer only what was asked. Be specific. Be brief." rows="3"></textarea>
+            <div class="btn-row">
+              <button class="btn-primary" id="submitListen">Check My Answer</button>
+              <button class="btn-ghost" id="newListenBtn">Different Scenario</button>
+            </div>
+            <div class="loading" id="loading-listen">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+              <span>Evaluating your listening…</span>
+            </div>
+            <div class="ai-response" id="response-listen">
+              <div class="ai-response-label">Listening Verdict</div>
+              <div class="ai-response-text" id="responseText-listen"></div>
+              <button class="mark-done-btn" id="doneListen">✓ Mark Complete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- M5: Slow It Down -->
+        <div class="module-card" id="mod-slow">
+          <div class="module-header" onclick="toggleModule('slow')">
+            <div class="module-icon">—</div>
+            <div class="module-meta">
+              <div class="module-title">Slow It Down</div>
+              <div class="module-desc">Three sentences to read aloud — slowly, deliberately, with weight.</div>
+            </div>
+            <div class="module-time">3 min</div>
+            <div class="module-chevron" id="chevron-slow">›</div>
+          </div>
+          <div class="module-body" id="body-slow">
+            <div class="exercise-prompt">
+              <div class="prompt-label">Read These Aloud — Pause at Every Full Stop</div>
+              <div class="prompt-text slow-sentences" id="slowPrompt">Loading…</div>
+            </div>
+            <p class="slow-instruction">Read each sentence as if the room is waiting for you. Breathe between sentences. Then write below — how did it feel?</p>
+            <textarea class="exercise-input" id="slowInput" placeholder="What felt awkward? What came naturally? Be honest with yourself." rows="3"></textarea>
+            <div class="btn-row">
+              <button class="btn-primary" id="submitSlow">Get Coaching Note</button>
+              <button class="btn-ghost" id="newSlowBtn">Different Sentences</button>
+            </div>
+            <div class="loading" id="loading-slow">
+              <div class="loading-dots"><span></span><span></span><span></span></div>
+              <span>Reading your reflection…</span>
+            </div>
+            <div class="ai-response" id="response-slow">
+              <div class="ai-response-label">Coach's Note</div>
+              <div class="ai-response-text" id="responseText-slow"></div>
+              <button class="mark-done-btn" id="doneSlow">✓ Mark Complete</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end modules-grid -->
+
+      <div class="footer-note">1% better. Every day. No shortcuts.</div>
+
+    </div><!-- end page-practice -->
+
+    <!-- ════════════════════════════════════ -->
+    <!--  PAGE: WORD BANK                     -->
+    <!-- ════════════════════════════════════ -->
+    <div class="page" id="page-wordbank">
+      <div class="section-label">Vocabulary Journal — Spaced Repetition</div>
+      <p class="section-desc">Every word you practise is saved here. Words highlighted in gold are due for review — revisiting a word 7 days after first learning it locks it in permanently.</p>
+      <div class="wordbank-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="due">Due for Review</button>
+        <button class="filter-btn" data-filter="done">Reviewed</button>
+      </div>
+      <div class="wordbank-grid" id="wordbankGrid">
+        <div class="empty-state">No words saved yet.<br>Complete the Word in Context module to begin.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!--  PAGE: SESSION HISTORY               -->
+    <!-- ════════════════════════════════════ -->
+    <div class="page" id="page-history">
+      <div class="section-label">Session Log — Every Practice Recorded</div>
+      <div class="history-list" id="historyList">
+        <div class="empty-state">No sessions recorded yet.<br>Complete your first session to see it here.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!--  PAGE: WEEKLY REVIEW                 -->
+    <!-- ════════════════════════════════════ -->
+    <div class="page" id="page-weekly">
+      <div class="section-label">Weekly Review — Generated Every 7 Sessions</div>
+      <div id="weeklyContent">
+        <div class="empty-state">Complete 7 sessions to unlock your first weekly review.</div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!--  PAGE: JOURNAL                       -->
+    <!-- ════════════════════════════════════ -->
+    <div class="page" id="page-journal">
+      <div class="section-label">Daily Reflection Journal</div>
+      <p class="section-desc">One sentence every day. "Today I noticed I…" — the most powerful tool for self-awareness is writing what you observe about yourself.</p>
+      <textarea class="journal-entry-input" id="journalInput" placeholder="Today I noticed I…"></textarea>
+      <div class="btn-row" style="margin-bottom:0;">
+        <button class="btn-primary" id="saveJournalBtn">Save Entry</button>
+      </div>
+      <div class="journal-list" id="journalList"></div>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!--  PAGE: SETTINGS                      -->
+    <!-- ════════════════════════════════════ -->
+    <div class="page" id="page-settings">
+      <div class="section-label">Settings</div>
+
+      <div class="settings-card">
+        <h3>Groq API Key</h3>
+        <p>Used to power AI feedback across all modules. Free at console.groq.com. Stored in your browser only.</p>
+        <div class="api-row" style="margin-top:14px;">
+          <input class="api-input" id="settingsApiInput" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+          <button class="btn-primary" id="settingsApiBtn">Update Key</button>
+        </div>
+        <div class="api-status" id="apiStatus"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>Theme</h3>
+        <p>Switch between dark and light mode.</p>
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn-ghost theme-btn" data-theme="dark">Dark</button>
+          <button class="btn-ghost theme-btn" data-theme="light">Light</button>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>Your Progress</h3>
+        <div class="settings-stats">
+          <div><span class="ss-label">Total Sessions</span><span class="ss-val" id="settingsSessions">0</span></div>
+          <div><span class="ss-label">Day Streak</span><span class="ss-val" id="settingsStreak">0</span></div>
+          <div><span class="ss-label">Words Mastered</span><span class="ss-val" id="settingsWords">0</span></div>
+          <div><span class="ss-label">Journal Entries</span><span class="ss-val" id="settingsJournal">0</span></div>
+        </div>
+      </div>
+
+      <div class="settings-card danger-card">
+        <h3>Reset All Data</h3>
+        <p>This will permanently delete all your progress, sessions, word bank, and journal. This cannot be undone.</p>
+        <button class="btn-danger" id="resetBtn">Reset Everything</button>
+      </div>
+
+    </div>
+
+  </div><!-- end .app -->
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">
+    <div class="toast-title" id="toastTitle">Milestone Reached</div>
+    <div class="toast-body" id="toastBody"></div>
+  </div>
+
+  <!-- CONFIRM MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-title">Are you sure?</div>
+      <div class="modal-body">This will delete all your progress, sessions, word bank, and journal entries permanently.</div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modalCancel">Cancel</button>
+        <button class="btn-danger" id="modalConfirm">Yes, Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+/* ═══════════════════════════════════════════════════════════════
+   THE ATKINSON METHOD — app.js
+   All state management, AI calls, localStorage, UI logic
+═══════════════════════════════════════════════════════════════ */
+
+'use strict';
+
+// ─────────────────────────────────────────────────────────────
+//  STORAGE KEY & DEFAULT STATE
+// ─────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'atkinson_v3';
+
+const DEFAULT_STATE = {
+  apiKey:          '',
+  theme:           'dark',
+  streak:          0,
+  lastSessionDate: null,
+  prevSessionDate: null,
+  totalSessions:   0,
+  wordsMastered:   0,
+  scores:          [],
+  moduleScores:    { word: [], calm: [], essence: [], listen: [], slow: [] },
+  completedToday:  [],
+  milestones:      [],
+  sessionContent:  {},
+  wordBank:        [],       // [{word,def,ex,score,learnedDate,nextReview,reviewCount}]
+  sessionHistory:  [],       // [{date,sessionNum,completed,avg,entries}]
+  weeklyReviews:   [],       // [{date,sessionRange,weekAvg,weakMod,aiNote,modTotals}]
+  journal:         [],       // [{date,text}]
+  todayEntries:    {},       // {word:{input,response,score}, calm:{...}, ...}
+};
+
+let S = { ...DEFAULT_STATE };
+
+// ─────────────────────────────────────────────────────────────
+//  PERSIST
+// ─────────────────────────────────────────────────────────────
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      // Deep merge so new keys from DEFAULT_STATE always exist
+      S = { ...DEFAULT_STATE, ...saved };
+      S.moduleScores = { ...DEFAULT_STATE.moduleScores, ...(saved.moduleScores || {}) };
+    }
+  } catch (e) {
+    console.warn('State load failed, using defaults.', e);
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+  } catch (e) {
+    console.warn('State save failed.', e);
+    showToast('⚠ Storage Error', 'Could not save progress. Check browser storage settings.');
+  }
+}
+
+function resetState() {
+  localStorage.removeItem(STORAGE_KEY);
+  S = { ...DEFAULT_STATE };
+  location.reload();
+}
+
+// ─────────────────────────────────────────────────────────────
+//  CONTENT DATA
+// ─────────────────────────────────────────────────────────────
+const MILESTONES = [
+  { id:'m1', label:'First Step',  sessions:1,   desc:'You began. That is everything.' },
+  { id:'m2', label:'Week One',    sessions:7,   desc:'7 sessions. Habit forming.' },
+  { id:'m3', label:'The Calm',    sessions:21,  desc:'21 days. A new way of speaking.' },
+  { id:'m4', label:'The Month',   sessions:30,  desc:'One month of deliberate practice.' },
+  { id:'m5', label:'Precision',   sessions:60,  desc:'Words chosen, not grabbed.' },
+  { id:'m6', label:'The Voice',   sessions:90,  desc:'90 days. You have found your voice.' },
+  { id:'m7', label:'Fluency',     sessions:150, desc:'Thinking in English. Naturally.' },
+  { id:'m8', label:'Mastery',     sessions:365, desc:'One year. The Atkinson standard.' },
+];
+
+const DAILY_THEMES = [
+  'Precision Over Volume — Say less. Mean more.',
+  'The Pause is Power — Silence commands respect.',
+  'Word Choice — The right word, not the nearest word.',
+  'Calm Delivery — Emotion is a tool, not a leak.',
+  'Active Presence — Listen first. Speak second.',
+  'Structured Thought — Entry, body, exit. Every time.',
+  'Authority in Tone — Steady, measured, certain.',
+];
+
+const QUOTES = [
+  '"The right word, delivered at the right pace, carries more weight than a thousand rushed ones."',
+  '"Calmness is not the absence of feeling. It is the mastery of it."',
+  '"Hesitation is human. Deliberateness is craft."',
+  '"Say what you mean. Mean what you say. Stop when you are done."',
+  '"The most powerful thing in a conversation is knowing when not to speak."',
+  '"Precision of language is precision of thought."',
+  '"People remember how you made them feel — and calm makes them feel safe."',
+];
+
+// Tiered vocabulary
+const WORDS_EASY = [
+  { word:'Succinct',   def:'briefly and clearly expressed',                        ex:'Keep your update succinct — two minutes, no more.' },
+  { word:'Composure',  def:'calm, controlled behaviour under pressure',             ex:'He maintained his composure even when the deadline moved.' },
+  { word:'Convey',     def:'to communicate or make known clearly',                  ex:'I want to convey that this is our strongest candidate.' },
+  { word:'Concise',    def:'giving information clearly in few words',               ex:'His feedback was concise and left no room for confusion.' },
+  { word:'Candid',     def:'truthful and frank, even when uncomfortable',           ex:'Let me be candid — this role needs someone more senior.' },
+  { word:'Assert',     def:'to state something confidently and directly',           ex:'He asserted the timeline without apologising for it.' },
+  { word:'Clarify',    def:'to make a statement or situation less confused',        ex:'Let me clarify — the offer stands as discussed.' },
+  { word:'Precise',    def:'marked by exactness and accuracy of expression',        ex:'His precise instructions left no room for misinterpretation.' },
+];
+
+const WORDS_MID = [
+  { word:'Articulate',  def:'to express thoughts clearly and effectively',          ex:'She articulated the candidate\'s strengths without hesitation.' },
+  { word:'Deliberate',  def:'done consciously and intentionally; not hasty',        ex:'A deliberate pause before answering signals confidence.' },
+  { word:'Measured',    def:'carefully considered and restrained in tone',          ex:'His measured response ended the dispute without drama.' },
+  { word:'Poised',      def:'self-assured and composed under scrutiny',             ex:'She remained poised when the negotiation turned difficult.' },
+  { word:'Lucid',       def:'expressed clearly; easy to understand',                ex:'A lucid explanation wins the client every time.' },
+  { word:'Discern',     def:'to recognise or identify a distinction accurately',    ex:'A good recruiter can discern culture fit within ten minutes.' },
+  { word:'Pragmatic',   def:'dealing with things as they are, not as wished',       ex:'Let\'s be pragmatic — two weeks notice is not negotiable.' },
+  { word:'Coherent',    def:'logical and consistent; easy to follow',               ex:'His proposal was coherent and took three minutes to deliver.' },
+  { word:'Tactful',     def:'careful not to cause offence or upset others',         ex:'A tactful response preserves the relationship and the deal.' },
+];
+
+const WORDS_HARD = [
+  { word:'Gravitas',     def:'a dignified seriousness that commands authority',     ex:'His gravitas in the room stopped all side conversations cold.' },
+  { word:'Nuance',       def:'a subtle but significant difference in meaning',      ex:'There\'s a nuance between "available" and "actively looking."' },
+  { word:'Equanimity',   def:'mental calmness, especially in difficult situations', ex:'She handled the client\'s anger with remarkable equanimity.' },
+  { word:'Cogent',       def:'clear, logical, and convincing in argument',          ex:'His cogent case for the candidate ended the panel\'s debate.' },
+  { word:'Circumspect',  def:'wary and cautious before taking action',              ex:'Be circumspect with timelines until the budget is confirmed.' },
+  { word:'Delineate',    def:'to describe or indicate something with precision',    ex:'She delineated the role requirements without any ambiguity.' },
+  { word:'Unequivocal',  def:'leaving no doubt; clear and absolutely direct',      ex:'The feedback was unequivocal — they want a second interview.' },
+  { word:'Impeccable',   def:'in accordance with the highest standards; flawless',  ex:'His impeccable timing in the debrief won the client over.' },
+];
+
+const SCENARIOS = [
+  'Your manager asks why a senior placement took longer than expected. You know the reason but feel defensive.',
+  'A client pushes back on your candidate recommendation. You strongly believe you are right.',
+  'You are on a call and something goes wrong — you lose your train of thought mid-sentence.',
+  'You need to tell a candidate they did not get the role, but you want them to feel respected.',
+  'Your European stakeholder speaks too fast and you missed the key point. You need to ask again without looking lost.',
+  'You are presenting a hiring strategy. Halfway through, you realise the room is not engaged.',
+  'A colleague takes credit for your idea in a meeting. You need to reclaim it calmly.',
+  'You are asked a question you don\'t know the answer to — live on a client call.',
+  'You disagree with a decision your director just announced in front of the team.',
+  'A candidate is negotiating aggressively. You need to hold the line without damaging the relationship.',
+  'You have to give critical feedback to a candidate who thinks the interview went perfectly.',
+  'You are running five minutes late to a client call. How do you open?',
+];
+
+const LISTEN_SCENARIOS = [
+  {
+    speech: 'We reviewed three candidates this week. Two were strong technically but lacked stakeholder management skills. The third had excellent communication and leadership presence, but his technical background was weaker than we\'d like. Given our timeline and the fact that this role is mostly internal-facing, I\'m leaning toward the third candidate, but I want your read on it.',
+    question: 'What is the hiring manager\'s main concern about the third candidate, and what is making them consider him anyway?'
+  },
+  {
+    speech: 'The client called this morning. They\'re happy with the shortlist overall, but they specifically mentioned that they want someone who has handled European markets — not just familiar with them. They\'ve extended the deadline by one week, which is helpful. Budget-wise, they\'re flexible if the right person comes along.',
+    question: 'What is the one non-negotiable requirement the client stated today?'
+  },
+  {
+    speech: 'I know we\'ve been pushing on speed, but I\'d rather take another two weeks and get this right than rush a hire that doesn\'t stick. We\'ve had three regrettable attritions in this department this year already. Quality over speed — that\'s the mandate from leadership.',
+    question: 'What specific evidence does the speaker give to justify slowing down?'
+  },
+  {
+    speech: 'The feedback from the panel was mixed. Two members loved her, one had serious reservations about her leadership style — specifically how she handled conflict in her last role. We\'re going to debrief again on Thursday. Please don\'t communicate any decision to the candidate until after that.',
+    question: 'What are you specifically asked NOT to do, and until when must you wait?'
+  },
+  {
+    speech: 'Before we close today, I want to flag three things. First, the job spec for the VP role needs updating — the salary band is wrong. Second, can someone follow up with the agency about the contractor start dates? And third, I\'d like the full pipeline report on my desk by Friday, not Monday.',
+    question: 'What does the speaker need from you specifically, and by when?'
+  },
+  {
+    speech: 'We had a strong quarter from a volume perspective, but leadership is concerned about offer acceptance rates. Across the board we\'re sitting at 68%, and they want us at 80% by end of Q3. The main reason candidates are declining is compensation. We need to revisit the benchmarks for at least three of our key functions.',
+    question: 'What is the specific target leadership has set, and what is identified as the primary problem?'
+  },
+];
+
+const SLOW_SETS = [
+  ['I have reviewed the situation carefully.', 'My recommendation is as follows.', 'I am confident this is the right path forward.'],
+  ['Thank you for raising that concern.', 'Let me address it directly.', 'Here is what I propose.'],
+  ['I understand your position.', 'Allow me to offer a different perspective.', 'This is why I believe it matters.'],
+  ['The timeline is clear.', 'The expectations are set.', 'We will deliver.'],
+  ['Before I respond, let me think for a moment.', 'The core issue here is straightforward.', 'My answer is this.'],
+  ['I will not rush this decision.', 'The right answer is worth the pause.', 'Here is my thinking.'],
+  ['I hear what you are saying.', 'The concern is valid.', 'And this is how I would address it.'],
+];
+
+// ─────────────────────────────────────────────────────────────
+//  UTILITY
+// ─────────────────────────────────────────────────────────────
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function daysFromNow(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toISOString();
+}
+
+function fmt(iso, opts) {
+  return new Date(iso).toLocaleDateString('en-GB', opts || { weekday:'short', day:'numeric', month:'short' });
+}
+
+function getWordPool() {
+  if (S.totalSessions < 10) return WORDS_EASY;
+  if (S.totalSessions < 30) return [...WORDS_EASY, ...WORDS_MID];
+  return [...WORDS_MID, ...WORDS_HARD];
+}
+
+function wordsDue() {
+  const now = new Date();
+  return S.wordBank.filter(w => new Date(w.nextReview) <= now);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  GROQ AI
+// ─────────────────────────────────────────────────────────────
+function systemPrompt() {
+  return `You are The Atkinson Method coach — a calm, dry, precise English communication coach for Danish, a senior recruitment professional based in India. His native languages are Hindi and Urdu; he is fluent in English but wants to speak with more authority, calm, and precision.
+
+His specific weaknesses:
+- Runs out of words under pressure
+- Gets emotionally excited, loses composure
+- Fails to deliver the core message 90% of the time
+- Gets lost in his own thoughts when others are speaking
+
+His model: Rowan Atkinson's real-life speaking style as himself — measured, unhurried, every word chosen deliberately. Not Mr Bean. Rowan Atkinson the person: dry wit, precision, no wasted words.
+
+Session count: ${S.totalSessions}. Difficulty: ${S.totalSessions < 10 ? 'foundation' : S.totalSessions < 30 ? 'intermediate' : 'advanced'}.
+
+Be concise. Be a coach, not a textbook. Use professional and recruitment contexts where relevant. Never use generic praise.`;
+}
+
+async function callGroq(userMessage, maxTokens = 650) {
+  if (!S.apiKey) {
+    document.getElementById('apiSetup').classList.add('visible');
+    throw new Error('No API key. Please add your Groq key above.');
+  }
+
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${S.apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      max_tokens: maxTokens,
+      temperature: 0.7,
+      messages: [
+        { role: 'system', content: systemPrompt() },
+        { role: 'user',   content: userMessage }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `Groq API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content.trim();
+}
+
+// ─────────────────────────────────────────────────────────────
+//  THEME
+// ─────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  S.theme = theme;
+  document.getElementById('themeIcon').textContent = theme === 'dark' ? '☀' : '☾';
+
+  // Update active state on settings buttons
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active-theme', btn.dataset.theme === theme);
+  });
+  saveState();
+}
+
+function toggleTheme() {
+  applyTheme(S.theme === 'dark' ? 'light' : 'dark');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  PAGE NAVIGATION
+// ─────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector(`.nav-tab[data-page="${id}"]`).classList.add('active');
+
+  // Render dynamic pages on visit
+  if (id === 'wordbank') renderWordBank();
+  if (id === 'history')  renderHistory();
+  if (id === 'weekly')   renderWeekly();
+  if (id === 'journal')  renderJournal();
+  if (id === 'settings') renderSettings();
+}
+
+// ─────────────────────────────────────────────────────────────
+//  CONTENT LOADERS
+// ─────────────────────────────────────────────────────────────
+function loadAllContent() {
+  const idx = S.totalSessions % DAILY_THEMES.length;
+  document.getElementById('dailyTheme').textContent = DAILY_THEMES[idx];
+  document.getElementById('dailyQuote').textContent = QUOTES[idx % QUOTES.length];
+
+  loadWordData();
+  loadScenarioData();
+  loadEssenceData();
+  loadListenData();
+  loadSlowData();
+  updateReviewBanner();
+}
+
+function loadWordData() {
+  const item = rnd(getWordPool());
+  S.sessionContent.word = item;
+  document.getElementById('wordPrompt').innerHTML =
+    `<span class="word-highlight">${item.word}</span>` +
+    ` <span class="word-def">— ${item.def}</span>` +
+    `<br><br><span class="word-example">"${item.ex}"</span>`;
+}
+
+function loadScenarioData() {
+  const s = rnd(SCENARIOS);
+  S.sessionContent.scenario = s;
+  document.getElementById('calmPrompt').textContent = s;
+}
+
+async function loadEssenceData() {
+  const el = document.getElementById('essencePrompt');
+  el.textContent = 'Loading a passage…';
+
+  if (!S.apiKey) {
+    el.textContent = 'The CEO sent a message to all hiring managers. While the business grows at 18% year-on-year and expands into three new markets, leadership\'s primary concern is the quality of senior hires, which has not kept pace with growth speed. Several key appointments failed, causing project delays and client confidence issues. Going forward, every senior hire requires additional panel review before an offer is extended, regardless of urgency.';
+    S.sessionContent.essence = el.textContent;
+    return;
+  }
+
+  try {
+    const complexity = S.totalSessions < 10
+      ? '4-5 sentences, one clear message'
+      : S.totalSessions < 30
+      ? '5-6 sentences, one main and one secondary point'
+      : '6-7 sentences, multiple threads, one essential core message';
+
+    const passage = await callGroq(
+      `Write a single professional paragraph (${complexity}) about a realistic workplace or recruitment scenario. Embed a clear central message within context. Return only the paragraph — no label, no title.`,
+      400
+    );
+    S.sessionContent.essence = passage;
+    el.textContent = passage;
+  } catch (e) {
+    el.textContent = 'The CEO sent a message to all hiring managers. While the business grows at 18% year-on-year and expands into three new markets, leadership\'s primary concern is the quality of senior hires, which has not kept pace with growth speed. Several key appointments failed, causing project delays and client confidence issues. Going forward, every senior hire requires additional panel review before an offer is extended, regardless of urgency.';
+    S.sessionContent.essence = el.textContent;
+  }
+}
+
+function loadListenData() {
+  const s = rnd(LISTEN_SCENARIOS);
+  S.sessionContent.listen = s;
+  document.getElementById('listenPrompt').textContent = s.speech;
+  document.getElementById('listenQuestion').textContent = s.question;
+}
+
+function loadSlowData() {
+  const sentences = rnd(SLOW_SETS);
+  S.sessionContent.slow = sentences;
+  document.getElementById('slowPrompt').innerHTML =
+    sentences.map(s => `<span class="slow-sentence-line">${s}</span>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  MODULE TOGGLE
+// ─────────────────────────────────────────────────────────────
+function toggleModule(id) {
+  const card = document.getElementById('mod-' + id);
+  const wasActive = card.classList.contains('active');
+  document.querySelectorAll('.module-card').forEach(c => c.classList.remove('active'));
+  if (!wasActive) card.classList.add('active');
+}
+
+function resetModuleUI(id) {
+  document.getElementById('response-' + id).classList.remove('visible');
+  document.getElementById(id + 'Input').value = '';
+  const scoreEl = document.getElementById('score-' + id);
+  if (scoreEl) scoreEl.style.display = 'none';
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SUBMIT MODULES
+// ─────────────────────────────────────────────────────────────
+async function submitModule(id) {
+  const input = document.getElementById(id + 'Input').value.trim();
+  if (!input) return;
+
+  const loadEl = document.getElementById('loading-' + id);
+  const respEl = document.getElementById('response-' + id);
+  const textEl = document.getElementById('responseText-' + id);
+
+  loadEl.classList.add('visible');
+  respEl.classList.remove('visible');
+
+  try {
+    let prompt = '';
+    let response = '';
+    let score = null;
+
+    if (id === 'word') {
+      const w = S.sessionContent.word;
+      prompt = `The user was asked to use "${w.word}" (meaning: ${w.def}) in a professional sentence.\n\nThey wrote: "${input}"\n\nEvaluate:\n1. Did they use the word correctly — yes or no, and why?\n2. Is the sentence professionally appropriate?\n3. How could they improve it?\n4. Write the ideal version.\n\nEnd your response with exactly: Score: X/10`;
+      response = await callGroq(prompt);
+      const m = response.match(/Score:\s*(\d+)\/10/i);
+      if (m) { score = parseInt(m[1]); showModuleScore('word', score); S.moduleScores.word.push(score); S.scores.push(score); }
+    }
+
+    else if (id === 'calm') {
+      prompt = `Scenario given to the user: "${S.sessionContent.scenario}"\n\nHow they said they would respond: "${input}"\n\nDo three things:\n1. Identify what is emotionally charged, rushed, or unclear.\n2. Rewrite it exactly as Rowan Atkinson the person would say it — calm, dry, deliberate, no unnecessary words.\n3. Explain the key difference in 2-3 sentences.\n\nMax 250 words.`;
+      response = await callGroq(prompt);
+    }
+
+    else if (id === 'essence') {
+      prompt = `Original passage:\n"${S.sessionContent.essence}"\n\nThe user's two-sentence summary:\n"${input}"\n\nEvaluate:\n1. Did the core message survive? Clearly state yes or no and why.\n2. What was missed or lost?\n3. Write the ideal two-sentence summary.\n\nEnd with exactly: Retention score: X/10`;
+      response = await callGroq(prompt);
+      const m = response.match(/Retention score:\s*(\d+)\/10/i);
+      if (m) { score = parseInt(m[1]); showModuleScore('essence', score); S.moduleScores.essence.push(score); S.scores.push(score); }
+    }
+
+    else if (id === 'listen') {
+      const { speech, question } = S.sessionContent.listen;
+      prompt = `What was said:\n"${speech}"\n\nQuestion asked:\n"${question}"\n\nUser's answer:\n"${input}"\n\nEvaluate:\n1. Did they answer the specific question, or drift?\n2. Were they precise or vague?\n3. What is the correct, specific answer?\n4. One coaching note on active listening.\n\nMax 200 words.`;
+      response = await callGroq(prompt);
+    }
+
+    else if (id === 'slow') {
+      prompt = `The user read these sentences aloud:\n"${S.sessionContent.slow.join(' ')}"\n\nTheir reflection:\n"${input}"\n\nGive them:\n1. One specific coaching note on the physical act of slowing speech.\n2. One concrete technique to use in a real meeting this week.\n3. One honest observation based on their reflection — not generic praise.\n\nMax 180 words.`;
+      response = await callGroq(prompt);
+    }
+
+    // Save to today's entries for history log
+    S.todayEntries[id] = { input, response, score };
+    updateAvgScore();
+
+    textEl.textContent = response;
+    loadEl.classList.remove('visible');
+    respEl.classList.add('visible');
+
+  } catch (err) {
+    loadEl.classList.remove('visible');
+    textEl.textContent = 'Error: ' + err.message;
+    respEl.classList.add('visible');
+  }
+}
+
+function showModuleScore(id, score) {
+  const el = document.getElementById('score-' + id);
+  document.getElementById('scoreVal-' + id).textContent = score + '/10';
+  el.style.display = 'inline-flex';
+}
+
+function updateAvgScore() {
+  if (S.scores.length > 0) {
+    const avg = Math.round(S.scores.reduce((a, b) => a + b, 0) / S.scores.length);
+    document.getElementById('statScore').textContent = avg + '/10';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  MARK DONE
+// ─────────────────────────────────────────────────────────────
+function markDone(id) {
+  if (S.completedToday.includes(id)) return;
+  S.completedToday.push(id);
+
+  const card = document.getElementById('mod-' + id);
+  card.classList.remove('active');
+  card.classList.add('completed');
+  card.querySelector('.module-icon').textContent = '✓';
+
+  if (id === 'word') {
+    S.wordsMastered++;
+    saveWordToBank();
+    document.getElementById('statWords').textContent = S.wordsMastered;
+  }
+
+  document.getElementById('statModules').textContent = S.completedToday.length;
+
+  if (S.completedToday.length === 5) completeSession();
+
+  saveState();
+}
+
+// ─────────────────────────────────────────────────────────────
+//  WORD BANK — SPACED REPETITION
+// ─────────────────────────────────────────────────────────────
+function saveWordToBank() {
+  const w = S.sessionContent.word;
+  if (!w) return;
+
+  const existing = S.wordBank.find(x => x.word === w.word);
+  if (existing) {
+    existing.reviewCount = (existing.reviewCount || 0) + 1;
+    existing.nextReview  = daysFromNow(7);
+  } else {
+    S.wordBank.push({
+      word:        w.word,
+      def:         w.def,
+      ex:          w.ex,
+      score:       S.todayEntries.word?.score || null,
+      learnedDate: new Date().toISOString(),
+      nextReview:  daysFromNow(7),
+      reviewCount: 0,
+    });
+  }
+}
+
+function updateReviewBanner() {
+  const due = wordsDue().length;
+  const banner = document.getElementById('reviewBanner');
+  document.getElementById('reviewCount').textContent = due;
+  banner.classList.toggle('visible', due > 0);
+}
+
+function renderWordBank(filter = 'all') {
+  const grid = document.getElementById('wordbankGrid');
+
+  if (S.wordBank.length === 0) {
+    grid.innerHTML = '<div class="empty-state">No words saved yet.<br>Complete the Word in Context module to begin.</div>';
+    return;
+  }
+
+  const now = new Date();
+  let words = [...S.wordBank];
+
+  if (filter === 'due')  words = words.filter(w => new Date(w.nextReview) <= now);
+  if (filter === 'done') words = words.filter(w => new Date(w.nextReview) > now);
+
+  words.sort((a, b) => new Date(a.nextReview) - new Date(b.nextReview));
+
+  if (words.length === 0) {
+    grid.innerHTML = '<div class="empty-state">No words in this category yet.</div>';
+    return;
+  }
+
+  grid.innerHTML = words.map(w => {
+    const isDue     = new Date(w.nextReview) <= now;
+    const daysLeft  = Math.ceil((new Date(w.nextReview) - now) / (1000 * 60 * 60 * 24));
+    const dueText   = isDue ? 'Due for review' : `Review in ${daysLeft}d`;
+    const dueClass  = isDue ? 'overdue' : '';
+
+    return `<div class="word-card${isDue ? ' due' : ''}">
+      <div class="word-card-word">${w.word}</div>
+      <div class="word-card-def">${w.def}</div>
+      <div class="word-card-meta">
+        <span class="word-card-score">${w.score ? `${w.score}/10` : 'No score'} &middot; &times;${w.reviewCount + 1}</span>
+        <span class="word-card-due ${dueClass}">${dueText}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SESSION COMPLETE
+// ─────────────────────────────────────────────────────────────
+function completeSession() {
+  const today = new Date().toDateString();
+  if (S.lastSessionDate === today) return; // already completed today
+
+  // Streak logic
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (S.lastSessionDate === yesterday.toDateString()) {
+    S.streak++;
+  } else {
+    S.streak = 1;
+  }
+
+  S.prevSessionDate = S.lastSessionDate;
+  S.lastSessionDate = today;
+  S.totalSessions++;
+
+  document.getElementById('streakNum').textContent    = S.streak;
+  document.getElementById('statSessions').textContent = S.totalSessions;
+
+  // Save to history
+  const sessionScores = Object.values(S.todayEntries).filter(e => e.score).map(e => e.score);
+  const sessionAvg    = sessionScores.length
+    ? Math.round(sessionScores.reduce((a, b) => a + b, 0) / sessionScores.length)
+    : null;
+
+  S.sessionHistory.unshift({
+    date:       new Date().toISOString(),
+    sessionNum: S.totalSessions,
+    completed:  [...S.completedToday],
+    avg:        sessionAvg,
+    entries:    { ...S.todayEntries },
+  });
+
+  // Weekly review every 7 sessions
+  if (S.totalSessions % 7 === 0) triggerWeeklyReview();
+
+  checkMilestones();
+  updateMilestoneUI();
+  updateWeakStat();
+  saveState();
+
+  showToast('✓ Session Complete', `Session ${S.totalSessions} done. Streak: ${S.streak} day${S.streak !== 1 ? 's' : ''}.`);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  WEAK AREA
+// ─────────────────────────────────────────────────────────────
+function updateWeakStat() {
+  const scored = ['word', 'essence'];
+  let weakName = '—', weakAvg = 11;
+
+  scored.forEach(key => {
+    const arr = S.moduleScores[key];
+    if (arr.length < 2) return;
+    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+    if (avg < weakAvg) { weakAvg = avg; weakName = key === 'word' ? 'Word' : 'Essence'; }
+  });
+
+  document.getElementById('statWeak').textContent = weakName;
+  document.getElementById('weakStat').classList.toggle('weak', weakName !== '—');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  WEEKLY REVIEW
+// ─────────────────────────────────────────────────────────────
+async function triggerWeeklyReview() {
+  const last7       = S.sessionHistory.slice(0, 7);
+  const allAvgs     = last7.filter(s => s.avg).map(s => s.avg);
+  const weekAvg     = allAvgs.length ? Math.round(allAvgs.reduce((a, b) => a + b, 0) / allAvgs.length) : null;
+
+  // Gather module scores from last 7 sessions
+  const modTotals = { word: [], essence: [] };
+  last7.forEach(sess => {
+    ['word', 'essence'].forEach(m => {
+      if (sess.entries?.[m]?.score) modTotals[m].push(sess.entries[m].score);
+    });
+  });
+
+  let weakMod = 'Listening & Calm (not scored)';
+  let weakAvg = 11;
+  for (const [k, arr] of Object.entries(modTotals)) {
+    if (!arr.length) continue;
+    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+    if (avg < weakAvg) { weakAvg = avg; weakMod = k === 'word' ? 'Word in Context' : 'Essence Test'; }
+  }
+
+  let aiNote = 'Add your Groq API key to generate a personalised coaching note.';
+  if (S.apiKey) {
+    try {
+      aiNote = await callGroq(
+        `Danish has just completed 7 more sessions (total: ${S.totalSessions}).\n\nWeekly data:\n- Average score: ${weekAvg || 'unavailable'}/10\n- Weakest module: ${weakMod}\n\nWrite a personal weekly coaching note — 3-4 sentences maximum. Be specific about his weak area. Reference what he should focus on concretely next week. Sound like a sharp, no-nonsense coach who genuinely wants him to improve. No generic encouragement.`,
+        350
+      );
+    } catch (e) {
+      aiNote = 'Could not generate coaching note. Check your API key.';
+    }
+  }
+
+  S.weeklyReviews.unshift({
+    date:         new Date().toISOString(),
+    sessionRange: `Sessions ${S.totalSessions - 6}–${S.totalSessions}`,
+    weekAvg,
+    weakMod,
+    aiNote,
+    modTotals,
+  });
+
+  saveState();
+  showToast('📊 Weekly Review Ready', 'Open the Weekly Review tab for your coach\'s note.');
+}
+
+function renderWeekly() {
+  const el = document.getElementById('weeklyContent');
+
+  if (S.weeklyReviews.length === 0) {
+    const sessLeft = 7 - (S.totalSessions % 7 || 7);
+    const n = sessLeft === 0 ? 7 : sessLeft;
+    el.innerHTML = `<div class="empty-state">Complete ${n} more session${n !== 1 ? 's' : ''} to unlock your first weekly review.</div>`;
+    return;
+  }
+
+  el.innerHTML = S.weeklyReviews.map(r => {
+    const wordAvg    = r.modTotals?.word?.length    ? Math.round(r.modTotals.word.reduce((a,b)=>a+b,0)    / r.modTotals.word.length)    : null;
+    const essenceAvg = r.modTotals?.essence?.length ? Math.round(r.modTotals.essence.reduce((a,b)=>a+b,0) / r.modTotals.essence.length) : null;
+
+    return `<div class="weekly-card">
+      <div class="weekly-card-meta">
+        <h3>${r.sessionRange}</h3>
+        <span class="weekly-card-date">${fmt(r.date, { day:'numeric', month:'short', year:'numeric' })}</span>
+      </div>
+      <div class="weekly-metrics">
+        <div class="weekly-metric-item">
+          <div class="wm-label">Avg Score</div>
+          <div class="wm-val">${r.weekAvg ? r.weekAvg + '/10' : '—'}</div>
+        </div>
+        <div class="weekly-metric-item">
+          <div class="wm-label">Weakest Area</div>
+          <div class="wm-val weak">${r.weakMod}</div>
+        </div>
+        <div class="weekly-metric-item">
+          <div class="wm-label">Word Score</div>
+          <div class="wm-val">${wordAvg ? wordAvg + '/10' : '—'}</div>
+        </div>
+        <div class="weekly-metric-item">
+          <div class="wm-label">Essence Score</div>
+          <div class="wm-val">${essenceAvg ? essenceAvg + '/10' : '—'}</div>
+        </div>
+      </div>
+      <div class="review-ai">${r.aiNote}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SESSION HISTORY
+// ─────────────────────────────────────────────────────────────
+const MOD_LABELS = { word:'Word', calm:'Calm', essence:'Essence', listen:'Listen', slow:'Slow' };
+const ALL_MODS   = ['word', 'calm', 'essence', 'listen', 'slow'];
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+
+  if (S.sessionHistory.length === 0) {
+    el.innerHTML = '<div class="empty-state">No sessions recorded yet.</div>';
+    return;
+  }
+
+  el.innerHTML = S.sessionHistory.map((sess, i) => {
+    const tags = ALL_MODS.map(m =>
+      `<span class="history-tag${sess.completed.includes(m) ? ' done' : ''}">${MOD_LABELS[m]}</span>`
+    ).join('');
+
+    const entries = Object.entries(sess.entries || {}).map(([mod, e]) => `
+      <div class="history-entry">
+        <div class="history-entry-label">${MOD_LABELS[mod] || mod} — Your answer${e.score ? ` · ${e.score}/10` : ''}</div>
+        <div class="history-entry-text">${e.input || ''}</div>
+        ${e.response ? `<div class="history-entry-label" style="margin-top:8px;">Coach's feedback</div><div class="history-entry-text">${e.response}</div>` : ''}
+      </div>`).join('');
+
+    return `<div class="history-item" onclick="toggleHistoryItem(${i})">
+      <div class="history-item-header">
+        <span class="history-date">Session ${sess.sessionNum || '?'} — ${fmt(sess.date)}</span>
+        <span class="history-score">${sess.avg ? sess.avg + '/10' : '—'}</span>
+      </div>
+      <div class="history-modules">${tags}</div>
+      <div class="history-detail" id="hist-${i}">
+        ${entries || '<div style="font-size:0.78rem;color:var(--text-dim);margin-top:10px;">No detailed entries saved for this session.</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistoryItem(i) {
+  document.getElementById('hist-' + i).classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  JOURNAL
+// ─────────────────────────────────────────────────────────────
+function saveJournalEntry() {
+  const text = document.getElementById('journalInput').value.trim();
+  if (!text) return;
+
+  S.journal.unshift({ date: new Date().toISOString(), text });
+  document.getElementById('journalInput').value = '';
+  saveState();
+  renderJournal();
+  showToast('✓ Reflection Saved', 'Self-awareness is the foundation of improvement.');
+}
+
+function renderJournal() {
+  const el = document.getElementById('journalList');
+
+  if (S.journal.length === 0) { el.innerHTML = ''; return; }
+
+  el.innerHTML = S.journal.map(j => `
+    <div class="journal-item">
+      <div class="journal-item-date">${fmt(j.date, { weekday:'long', day:'numeric', month:'long', year:'numeric' })}</div>
+      <div class="journal-item-text">${j.text}</div>
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  SETTINGS PAGE
+// ─────────────────────────────────────────────────────────────
+function renderSettings() {
+  document.getElementById('settingsSessions').textContent = S.totalSessions;
+  document.getElementById('settingsStreak').textContent   = S.streak;
+  document.getElementById('settingsWords').textContent    = S.wordsMastered;
+  document.getElementById('settingsJournal').textContent  = S.journal.length;
+
+  if (S.apiKey) {
+    document.getElementById('apiStatus').textContent  = '✓ API key saved';
+    document.getElementById('settingsApiInput').value = '';
+    document.getElementById('settingsApiInput').placeholder = 'Key saved — paste a new one to update';
+  }
+
+  // Mark active theme button
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.toggle('active-theme', btn.dataset.theme === S.theme);
+  });
+}
+
+function updateApiKey(inputId, statusId) {
+  const val = document.getElementById(inputId).value.trim();
+  if (!val) return;
+  S.apiKey = val;
+  saveState();
+  if (statusId) document.getElementById(statusId).textContent = '✓ API key saved';
+  document.getElementById('apiSetup').classList.remove('visible');
+  showToast('✓ Key Saved', 'AI coaching is now active.');
+  loadAllContent();
+}
+
+// ─────────────────────────────────────────────────────────────
+//  MILESTONES
+// ─────────────────────────────────────────────────────────────
+function checkMilestones() {
+  MILESTONES.forEach(m => {
+    if (S.totalSessions >= m.sessions && !S.milestones.includes(m.id)) {
+      S.milestones.push(m.id);
+      showToast('🏅 ' + m.label, m.desc);
+    }
+  });
+}
+
+function updateMilestoneUI() {
+  const n   = S.totalSessions;
+  const row = document.getElementById('milestonesRow');
+  row.innerHTML = '';
+
+  let curM  = MILESTONES[0];
+  let nextM = MILESTONES[1];
+
+  MILESTONES.forEach((m, i) => {
+    if (n >= m.sessions) { curM = m; nextM = MILESTONES[i + 1] || null; }
+
+    const pill = document.createElement('div');
+    pill.className = 'milestone-pill';
+    if (n >= m.sessions) pill.classList.add('achieved');
+    else if (m === nextM) pill.classList.add('next');
+    pill.textContent = m.label;
+    pill.title = `${m.sessions} sessions — ${m.desc}`;
+    row.appendChild(pill);
+  });
+
+  document.getElementById('currentMilestoneName').textContent = curM.label;
+  document.getElementById('sessionsLabel').textContent = `${n} sessions complete`;
+
+  if (nextM) {
+    document.getElementById('nextMilestoneLabel').textContent = `Next: ${nextM.sessions} sessions`;
+    document.getElementById('progressFill').style.width = Math.min(100, (n / nextM.sessions) * 100) + '%';
+  } else {
+    document.getElementById('nextMilestoneLabel').textContent = 'All milestones reached';
+    document.getElementById('progressFill').style.width = '100%';
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+//  TOAST
+// ─────────────────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(title, body) {
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastBody').textContent  = body;
+  const t = document.getElementById('toast');
+  t.classList.add('visible');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 4500);
+}
+
+// ─────────────────────────────────────────────────────────────
+//  RESET MODAL
+// ─────────────────────────────────────────────────────────────
+function showResetModal() {
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+function hideResetModal() {
+  document.getElementById('modalOverlay').classList.remove('visible');
+}
+
+// ─────────────────────────────────────────────────────────────
+//  WIRE ALL EVENTS
+// ─────────────────────────────────────────────────────────────
+function wireEvents() {
+
+  // Nav tabs
+  document.querySelectorAll('.nav-tab').forEach(btn => {
+    btn.addEventListener('click', () => showPage(btn.dataset.page));
+  });
+
+  // Theme
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
+  });
+
+  // API key — top banner
+  document.getElementById('saveApiBtn').addEventListener('click', () => updateApiKey('apiKeyInput', null));
+  document.getElementById('apiKeyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') updateApiKey('apiKeyInput', null);
+  });
+
+  // API key — settings page
+  document.getElementById('settingsApiBtn').addEventListener('click', () => updateApiKey('settingsApiInput', 'apiStatus'));
+  document.getElementById('settingsApiInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') updateApiKey('settingsApiInput', 'apiStatus');
+  });
+
+  // Word module
+  document.getElementById('submitWord').addEventListener('click', () => submitModule('word'));
+  document.getElementById('newWordBtn').addEventListener('click', () => { loadWordData(); resetModuleUI('word'); });
+  document.getElementById('doneWord').addEventListener('click', () => markDone('word'));
+
+  // Calm module
+  document.getElementById('submitCalm').addEventListener('click', () => submitModule('calm'));
+  document.getElementById('newScenarioBtn').addEventListener('click', () => { loadScenarioData(); resetModuleUI('calm'); });
+  document.getElementById('doneCalm').addEventListener('click', () => markDone('calm'));
+
+  // Essence module
+  document.getElementById('submitEssence').addEventListener('click', () => submitModule('essence'));
+  document.getElementById('doneEssence').addEventListener('click', () => markDone('essence'));
+
+  // Listen module
+  document.getElementById('submitListen').addEventListener('click', () => submitModule('listen'));
+  document.getElementById('newListenBtn').addEventListener('click', () => { loadListenData(); resetModuleUI('listen'); });
+  document.getElementById('doneListen').addEventListener('click', () => markDone('listen'));
+
+  // Slow module
+  document.getElementById('submitSlow').addEventListener('click', () => submitModule('slow'));
+  document.getElementById('newSlowBtn').addEventListener('click', () => { loadSlowData(); resetModuleUI('slow'); });
+  document.getElementById('doneSlow').addEventListener('click', () => markDone('slow'));
+
+  // Journal
+  document.getElementById('saveJournalBtn').addEventListener('click', saveJournalEntry);
+  document.getElementById('journalInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.ctrlKey) saveJournalEntry();
+  });
+
+  // Word bank filters
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderWordBank(btn.dataset.filter);
+    });
+  });
+
+  // Reset
+  document.getElementById('resetBtn').addEventListener('click', showResetModal);
+  document.getElementById('modalCancel').addEventListener('click', hideResetModal);
+  document.getElementById('modalConfirm').addEventListener('click', () => { hideResetModal(); resetState(); });
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalOverlay')) hideResetModal();
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────────────────────────
+function init() {
+  loadState();
+
+  // Reset today's data if it's a new day
+  const today = new Date().toDateString();
+  if (S.lastSessionDate !== today) {
+    S.completedToday = [];
+    S.todayEntries   = {};
+  }
+
+  // Apply saved theme
+  applyTheme(S.theme || 'dark');
+
+  // Populate UI
+  document.getElementById('streakNum').textContent    = S.streak;
+  document.getElementById('statSessions').textContent = S.totalSessions;
+  document.getElementById('statWords').textContent    = S.wordsMastered;
+  document.getElementById('statModules').textContent  = S.completedToday.length;
+  updateAvgScore();
+  updateWeakStat();
+  updateMilestoneUI();
+
+  // Restore completed module states
+  S.completedToday.forEach(id => {
+    const card = document.getElementById('mod-' + id);
+    if (!card) return;
+    card.classList.add('completed');
+    card.querySelector('.module-icon').textContent = '✓';
+  });
+
+  // Show API banner if no key
+  if (!S.apiKey) document.getElementById('apiSetup').classList.add('visible');
+
+  // Wire all events
+  wireEvents();
+
+  // Load exercise content
+  loadAllContent();
+}
+
+// Start
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+</body>
+</html>
